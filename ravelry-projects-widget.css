@@ -1,19 +1,31 @@
 .widget_ravelry_projects .widget-title {
 	background:url(ravelry-icon-16x16.png) no-repeat 0 50%;
-	margin-bottom:5px;
+	margin-bottom:10px;
 	padding-left:24px;
-	font-size:1em;
-	font-size:0.785714rem;
 }
-.widget_ravelry_projects ul {
+.my-ravelry-projects {
 	list-style:none !important;
+	margin-left:0 !important;
+	padding-left:0 !important;
 }
-.widget_ravelry_projects li .rav-proj-date {
+.my-ravelry-projects .project-title {
+	display:inline-block;
+	margin:10px 0 0;
+	font-size:1.2em;
+}
+.my-ravelry-projects li {
+	margin-bottom:25px;
+}
+.my-ravelry-projects .rav-proj-date {
 	display:block;
 	margin-bottom:10px;
 	font-style:italic;
 }
-.widget_ravelry_projects li .project_featured_photo {
+.my-ravelry-projects .project_notes {
+	margin-top:5px !important;
+	font-size:1em !important;
+}
+.my-ravelry-projects .project_featured_photo {
 	max-width:50%;
 	border:none !important;
 }

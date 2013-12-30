@@ -1,18 +1,18 @@
 <?php
 /**
  * @package Ravelry_projects_widget
- * @version 1.0
+ * @version 1.1
  */
 /*
-Plugin Name: Ravelry Projects Widget
+Plugin Name: Ravelry projects widget
 Description: Show your recent Ravelry projects in a widget.
-Version: 1.0
+Version: 1.1
 Text Domain: ravelry-projects-widget
 Author: Annika Lindstedt
 Author URI: http://www.annikalindstedt.com
 License: GPL2
 
-Copyright 2012  Annika Lindstedt  (email : annika.lindstedt@gmail.com)
+Copyright 2012-2013  Annika Lindstedt  (email : annika.lindstedt@gmail.com)
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License, version 2, as 
@@ -56,6 +56,7 @@ class Ravelry_projects_widget extends WP_Widget {
 		$ravelry_username = $instance['ravelry_username'];
 		$nr_projects = $instance['nr_projects'];
 		$finished_projects = $instance['finished_projects'];
+		$project_notes = isset($instance['project_notes']) ? $instance['project_notes'] : 'checked';
 		$ravelry_profile_link = $instance['ravelry_profile_link'];
 		$error_message = false;
 
@@ -66,6 +67,7 @@ class Ravelry_projects_widget extends WP_Widget {
 
 			// Get a SimplePie feed object from the specified feed source.
 			$rss = fetch_feed($rss_feed_address);
+			
 			if (!is_wp_error( $rss ) ) { // Checks that the object is created correctly 
 				$nr_projects = (int)$nr_projects;
 			    $maxitems = $rss->get_item_quantity($nr_projects);
@@ -89,13 +91,21 @@ class Ravelry_projects_widget extends WP_Widget {
 		?>
 		
 		<?php if(!$error_message) { ?>
-			<ul>
+			<ul class="my-ravelry-projects">
 			    <?php // Loop through each feed item and display each item as a hyperlink.
 			    foreach ( $rss_items as $item ) : ?>
 			    <li>
-					<a href='<?php echo esc_url( $item->get_permalink() ); ?>'><?php echo esc_html( $item->get_title() ); ?></a>
+					<?php $projectstest = new SimpleXMLElement('<item>' . $item->get_content() . '</item>'); ?>
+					<?php if($projectstest->img->asXML() != "") { ?>
+						<div><?php echo $projectstest->img->asXML(); ?></div>
+					<?php } ?>
+					<a href='<?php echo esc_url( $item->get_permalink() ); ?>' class="project-title"><?php echo esc_html( $item->get_title() ); ?></a>
 					<span class="rav-proj-date"><?php echo $item->get_date('j F Y'); ?></span>
-					<div><?php echo $item->get_content(); ?></div>
+					<?php 
+						if($project_notes != "") {
+							echo $projectstest->div->asXML();
+						}
+					?>
 			    </li>
 			    <?php endforeach; ?>
 			</ul>
@@ -104,7 +114,7 @@ class Ravelry_projects_widget extends WP_Widget {
 		}
 		
 		if($ravelry_profile_link != "" && $ravelry_username != "") { ?>
-			<p class="rav-proj-profile-link"><a href="http://www.ravelry.com/people/<?php echo $ravelry_username; ?>"><img src="<?php echo plugins_url('ravelry-text-icon.png', __FILE__); ?>" alt="Ravelry" /> <?php _e( "I'm", "ravelry-projects-widget" ); ?> <?php echo $ravelry_username; ?> <?php _e( "on Ravelry.", "ravelry-projects-widget" ); ?></a></p>
+			<p class="rav-proj-profile-link"><a href="http://www.ravelry.com/people/<?php echo $ravelry_username; ?>" target="_blank"><img src="<?php echo plugins_url('ravelry-text-icon.png', __FILE__); ?>" alt="Ravelry" /> <?php _e( "I'm", "ravelry-projects-widget" ); ?> <?php echo $ravelry_username; ?> <?php _e( "on Ravelry.", "ravelry-projects-widget" ); ?></a></p>
 		<?php }
 		
 		echo $after_widget;
@@ -126,6 +136,7 @@ class Ravelry_projects_widget extends WP_Widget {
 		$instance['ravelry_username'] = strip_tags( $new_instance['ravelry_username'] );
 		$instance['nr_projects'] = strip_tags( $new_instance['nr_projects'] );
 		$instance['finished_projects'] = strip_tags( $new_instance['finished_projects'] == "" ? "" : "checked" );
+		$instance['project_notes'] = strip_tags( $new_instance['project_notes'] == "" ? "" : "checked" );
 		$instance['ravelry_profile_link'] = strip_tags( $new_instance['ravelry_profile_link'] == "" ? "" : "checked" );
 		
 		return $instance;
@@ -146,7 +157,8 @@ class Ravelry_projects_widget extends WP_Widget {
 				'ravelry_username' => '',
 				'nr_projects' => '',
 				'finished_projects' => '',
-				'ravelry_profile_link' => ''
+				'ravelry_profile_link' => '',
+				'project_notes' => 'checked'
 				)
 		);
 		
@@ -154,6 +166,7 @@ class Ravelry_projects_widget extends WP_Widget {
 		$ravelry_username = strip_tags($instance['ravelry_username']);
 		$nr_projects = strip_tags($instance['nr_projects']);
 		$finished_projects = strip_tags($instance['finished_projects']);
+		$project_notes = strip_tags($instance['project_notes']);
 		$ravelry_profile_link = strip_tags($instance['ravelry_profile_link']);
 				
 		?>
@@ -171,6 +184,10 @@ class Ravelry_projects_widget extends WP_Widget {
 		<p>
 		<input id="<?php echo $this->get_field_id( 'finished_projects' ); ?>" name="<?php echo $this->get_field_name( 'finished_projects' ); ?>" type="checkbox" <?php echo ($finished_projects == "" ? "" : "checked"); ?> />
 		<label for="<?php echo $this->get_field_id( 'finished_projects' ); ?>"><?php _e( "Only show finished projects", "ravelry-projects-widget" ); ?></label> 
+		</p>
+		<p>
+		<input id="<?php echo $this->get_field_id( 'project_notes' ); ?>" name="<?php echo $this->get_field_name( 'project_notes' ); ?>" type="checkbox" <?php echo ($project_notes == "" ? "" : "checked"); ?> />
+		<label for="<?php echo $this->get_field_id( 'project_notes' ); ?>"><?php _e( "Show my project notes", "ravelry-projects-widget" ); ?></label> 
 		</p>
 		<p>
 		<input id="<?php echo $this->get_field_id( 'ravelry_profile_link' ); ?>" name="<?php echo $this->get_field_name( 'ravelry_profile_link' ); ?>" type="checkbox" <?php echo ($ravelry_profile_link == "" ? "" : "checked"); ?> />
@@ -191,7 +208,7 @@ if ( is_active_widget( false, false, 'ravelry_projects' ) ) {
 }
 
 function ravelry_projects_init() {
-	wp_register_style( 'ravelry_projects', plugins_url('ravelry-projects-widget.css', __FILE__), '', '1.0', 'all' );
+	wp_register_style( 'ravelry_projects', plugins_url('ravelry-projects-widget.css', __FILE__), '', '1.1', 'all' );
 	wp_enqueue_style( 'ravelry_projects' );
 }
 
