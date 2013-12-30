@@ -6,7 +6,7 @@ Ravelry Projects Widget outputs your most recent crochet/knitting projects from 
 
 For more information about the plugin, installation and download:
 
-[http://wordpress.org/extend/plugins/ravelry-projects-widget/](http://wordpress.org/extend/plugins/ravelry-projects-widget/)
+[http://wordpress.org/plugins/ravelry-projects-widget/](http://wordpress.org/plugins/ravelry-projects-widget/)
 
 
 
