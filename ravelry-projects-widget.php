@@ -120,6 +120,43 @@ class Ravelry_projects_widget extends WP_Widget {
 		echo $after_widget;
 	}
 
+    /**
+     * @param $atts shortcode attributes
+     * @return string shortcode text
+     */
+    public function shortcode($atts) {
+        extract( shortcode_atts( array(
+            'before_title' => '<span class="rav-proj-title">',
+            'title' => '',
+            'after_title' => '</span>',
+            'before' => '<div class="my-ravelry-projects">',
+            'after' => '</div>',
+            'username' => '',
+            'nr_projects' => '5',
+            'finished_projects' => '',
+            'project_notes' => '1',
+            'ravelry_profile_link' => '1',
+        ), $atts ) );
+        ob_start();
+        $this->widget(array(
+            'before_widget' => $before,
+            'before_title' => $before_title,
+            'after_title' => $after_title,
+            'after_widget' => $after,
+        ), array(
+            'title' => $title,
+            'ravelry_username' => $username,
+            'nr_projects' => $nr_projects,
+            'finished_projects' => $finished_projects == '1' ? '1' : '',
+            'project_notes' => $project_notes == '1' ? '1' : '',
+            'ravelry_profile_link' => $ravelry_profile_link == '1' ? '1' : '',
+        ));
+        $output = ob_get_contents();
+        ob_end_clean();
+        return $output;
+    }
+
+
 	/**
 	 * Sanitize widget form values as they are saved.
 	 *
@@ -197,6 +234,17 @@ class Ravelry_projects_widget extends WP_Widget {
 	}
 
 }
+
+/**
+ * @param $atts shortcode attributes
+ * @return string shortcode text
+ */
+function ravelry_projects_shortcode($atts) {
+    $widget = new Ravelry_projects_widget();
+    return $widget->shortcode($atts);
+}
+
+add_shortcode( 'ravelry-projects', 'ravelry_projects_shortcode' );
 
 add_action( 'widgets_init', create_function( '', 'register_widget( "Ravelry_projects_widget" );' ) );
 
